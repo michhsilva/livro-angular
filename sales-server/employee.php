@@ -10,8 +10,7 @@ $app->get("/employees",function (){
 
 $app->get("/employee/:id",function ($id){
 
-	//DATE_FORMAT( `date` , '%d/%c/%Y %H:%i:%s' ) AS `date`
-	$sql = "SELECT EmployeeID,FirstName,LastName,HomePhone,DATE_FORMAT(BirthDate,'%d/%c/%Y') as BirthDate FROM employees WHERE EmployeeID=?";
+	$sql = "SELECT EmployeeID,FirstName,LastName,HomePhone FROM employees WHERE EmployeeID=?";
 	$stmt = DB::prepare($sql);
 	$stmt->execute(array($id));
 	formatJson($stmt->fetch());
@@ -22,26 +21,24 @@ $app->post("/employee/",function (){
 	$data =json_decode(\Slim\Slim::getInstance()->request()->getBody());
 
 	if ($data->EmployeeID!=0){
-		$sql = "UPDATE employees SET FirstName=?,LastName=?,HomePhone=?,BirthDate=? WHERE EmployeeID=?";
+		$sql = "UPDATE employees SET FirstName=?,LastName=?,HomePhone=? WHERE EmployeeID=?";
 		$stmt = DB::prepare($sql);
 		$stmt->execute(array(
 			$data->FirstName,
 			$data->LastName,
 			$data->HomePhone,
-			DB::dateToMySql($data->BirthDate),
 			$data->EmployeeID
 			)
 		);
 	}
 	else
 	{
-		$sql = "INSERT INTO employees (FirstName,LastName,HomePhone,BirthDate)  VALUES (?,?,?,?)";
+		$sql = "INSERT INTO employees (FirstName,LastName,HomePhone)  VALUES (?,?,?)";
 		$stmt = DB::prepare($sql);
 		$stmt->execute(array(
 			$data->FirstName,
 			$data->LastName,
-			$data->HomePhone,
-			DB::dateToMySql($data->BirthDate)
+			$data->HomePhone
 			)
 		);
 		$data->EmployeeID = DB::lastInsertId();
